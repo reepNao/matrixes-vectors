@@ -1,8 +1,0 @@
-# pip install --upgrade pip
-pandas
-numpy
-
-# Veri Görselleştirme
-matplotlib
-seaborn
-pillow

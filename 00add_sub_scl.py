@@ -3,7 +3,6 @@ from matrix import Matrix, Vector
 u = Matrix([[1., 2.],[3., 4.]])
 v = Matrix([[7., 4.],[-2., 2.]])
 
-print("Matrix addition, subtraction and scalar multiplication")
 result = u.add(v)
 print(result) # Matrix([[8.0, 6.0], [1.0, 6.0]])
 
@@ -19,8 +18,6 @@ v1 = Vector([5., 7.])
 
 u3 = Vector([2., 3.])
 
-print(" ")
-print("Vector addition, subtraction and scalar multiplication")
 result1 = u1.add(v1)
 print(result1)  # Vector([7.0, 10.0])
 

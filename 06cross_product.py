@@ -8,11 +8,7 @@ u = Vector([[1., 2., 3.]]);
 v = Vector([[4., 5., 6.]]);
 print(Vector.cross_product(u, v)); # [-3.][6.][-3.]
 
-u = Vector([[4., 2., 3.]]);
+u = Vector([[4., 2., -3.]]);
 v = Vector([[-2., -5., 16.]]);
-print(Vector.cross_product(u, v)); # [47.][-70.][-16.]
-
-u = Vector([[8., 7., -4.]]);
-v = Vector([[3., 2., 1.]]);
-print(Vector.cross_product(u, v)); # [15.][-20.][-5.]
-
+print(Vector.cross_product(u, v)); # [17.][-58.][-16.]
+#subject is wrong

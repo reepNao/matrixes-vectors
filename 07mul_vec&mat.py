@@ -1,7 +1,5 @@
 from matrix import Matrix, Vector
 
-
-
 u = Matrix([[1., 0.],[0., 1.]]);
 v = Vector([[4., 2.]]);
 print(u.mul_vec(v)); # [4.][2.]
@@ -25,4 +23,3 @@ print(u.mul_mat(v)); # [[2., 1.][4., 2.]]
 u = Matrix([[3., -5.],[6., 8.]]);
 v = Matrix([[2., 1.],[4., 2.]]);
 print(u.mul_mat(v)); # [[-14., -7.][44., 22.]]
-
