@@ -15,6 +15,15 @@ class Matrix:
         else:
             raise ValueError("Invalid form of data:", data)
 
+    @staticmethod
+    def manual_round(number, decimals):
+        factor = 10 ** decimals
+        return int(number * factor) / factor
+
+    def round(self, decimals=0):
+        rounded_data = [[self.manual_round(elem, decimals) for elem in row] for row in self.data]
+        return Matrix(rounded_data)
+
     def add(self, other):
         if not isinstance(other, Matrix):
             raise TypeError("The argument must be a Matrix.")
@@ -92,6 +101,15 @@ class Matrix:
             return Vector(result)
         else:
             raise TypeError("Invalid type of input value.")
+    
+    def mul_mat(self, other):
+        if isinstance(other, Matrix):
+            if self.shape[1] != other.shape[0]:
+                raise ValueError("Matrices cannot be multiplied, dimensions don't match.")
+            result = [[sum([self.data[i][k] * other.data[k][j] for k in range(self.shape[1])]) for j in range(other.shape[1])] for i in range(self.shape[0])]
+            return Matrix(result)
+        else:
+            raise TypeError("Invalid type of input value.")
 
     def trace(self):
         if self.shape[0] != self.shape[1]:
@@ -111,53 +129,73 @@ class Matrix:
         return Matrix(transposed_matrix)
 
     def row_echelon(self):
+        # Gaussian elimination with back-substitution for reduced row echelon form
         pivot = 0
         for row in range(self.shape[0]):
             if pivot >= self.shape[1]:
                 break
+            # Find a non-zero pivot element in the current row
             while self.data[row][pivot] == 0:
                 pivot += 1
                 if pivot >= self.shape[1]:
                     return self
-                for i in range(row + 1, self.shape[0]):
-                    if self.data[i][pivot] != 0:
-                        self.data[row], self.data[i] = self.data[i], self.data[row]
-                        break
+            # Swap the current row with a row containing a non-zero pivot element
+            for i in range(row + 1, self.shape[0]):
+                if self.data[i][pivot] != 0:
+                    self.data[row], self.data[i] = self.data[i], self.data[row]
+                    break
+            # Scale the current row to make the pivot element 1
             divisor = self.data[row][pivot]
             self.data[row] = [elem / divisor for elem in self.data[row]]
+
+            # Perform the row operations to eliminate other non-zero elements in the current column
             for i in range(self.shape[0]):
                 if i != row:
                     multiplier = self.data[i][pivot]
                     self.data[i] = [elem - multiplier * self.data[row][j] for j, elem in enumerate(self.data[i])]
-                pivot += 1
-            return self
-
+            pivot += 1
+        return self.round(7)
+    
     def determinant(self):
         if self.shape[0] != self.shape[1]:
-            raise ValueError("Matrix must be square for determinant.")
-        if self.shape == (2, 2):
-            return self.data[0][0] * self.data[1][1] - self.data[0][1] * self.data[1][0]
-        n = self.shape[0]
+            raise TypeError("Determinant is undefined for non-square matrices.")
+
+        # Base case for 2x2 matrix
+        if self.shape[0] == 2:
+            return self.manual_round(self.data[0][0] * self.data[1][1] - self.data[0][1] * self.data[1][0], 4)
+
         matrix_copy = [row.copy() for row in self.data]
         det = 1.0
-        
-        for i in range(n):
-            max_row = i
-            for k in range(i + 1, n):
-                if matrix_copy[k][i] != 0:
-                    if i != k:
+
+        # Gaussian elimination
+        for i in range(self.shape[0]):
+            # Find the pivot
+            pivot = matrix_copy[i][i]
+            if pivot == 0:
+                # Find a row with a non-zero element in the current column
+                for k in range(i + 1, self.shape[0]):
+                    if matrix_copy[k][i] != 0:
                         matrix_copy[i], matrix_copy[k] = matrix_copy[k], matrix_copy[i]
-                        det *= -1
+                        det *= -1  # Row swap changes the sign of the determinant
+                        pivot = matrix_copy[i][i]
+                        break
+                else:
+                    return 0.0
+            det *= pivot
+            # Normalize the pivot row
+            matrix_copy[i] = [elem / pivot for elem in matrix_copy[i]]
+            # Eliminate other non-zero elements in the same column
+            for j in range(i + 1, self.shape[0]):
+                factor = matrix_copy[j][i]
+                matrix_copy[j] = [matrix_copy[j][x] - factor * matrix_copy[i][x] for x in range(self.shape[0])]
+        
+        # Multiply the diagonal elements
+        for i in range(self.shape[0]):
+            det *= matrix_copy[i][i]
+        
+        return self.manual_round(det, 4)
 
-                    pivot = matrix_copy[i][i]
-                    det *= pivot
-                    matrix_copy[i] = [elem / pivot for elem in matrix_copy[i]]
 
-                    for j in range(i + 1, n):
-                        factor = matrix_copy[j][i]
-                        matrix_copy[k] = [x - y * factor for x, y in zip(matrix_copy[k], matrix_copy[i])]
-                    break
-        return det
 
     def inverse(self):
         if self.shape[0] != self.shape[1]:
@@ -353,7 +391,6 @@ class Vector(Matrix):
             square_result += element ** 2
         square_root = square_result ** 0.5
         return square_root
-
     
     def norm_1(self):
         result = 0.0
@@ -378,6 +415,14 @@ class Vector(Matrix):
                 max_abs_value = abs_value
         return max_abs_value
 
+    def round(self, decimals=0):
+        def manual_round(x, decimals):
+            factor = 10 ** decimals
+            return round(x * factor) / factor
+        
+        rounded_data = [[manual_round(elem, decimals) for elem in row] for row in self.data]
+        return Vector(rounded_data)
+
     @staticmethod
     def angle_cos(u, v):
         if not isinstance(u, Vector) or not isinstance(v, Vector):
@@ -389,7 +434,13 @@ class Vector(Matrix):
         v_norm = v.norm()
         if u_norm == 0 or v_norm == 0:
             raise ValueError("Vectors must have non-zero norms.")
+
+        def manual_round(x, decimals):
+            factor = 10 ** decimals
+            return round(x * factor) / factor
+        
         cos_theta = dot_product / (u_norm * v_norm)
+        cos_theta = manual_round(cos_theta, 10)
         return cos_theta
 
     def cross_product(u, v):

@@ -1,43 +1,8 @@
 # pip install --upgrade pip
-# Veri Analizi ve Manipülasyonu
 pandas
 numpy
-scipy
 
 # Veri Görselleştirme
 matplotlib
 seaborn
-plotly
-
-# Web Scraping
-requests
-beautifulsoup4
-
-# Web Geliştirme
-flask
-
-# Test ve Debug
-pytest
-ipython
-
-# Veritabanı
-SQLAlchemy
-psycopg2-binary
-
-# Makine Öğrenimi
-scikit-learn
-
-# API ile Çalışma
-fastapi
-pydantic
-
-# Yardımcı Araçlar
-click
-
-# Genel
 pillow
-xgboost
-lightgbm
-tensorflow
-keras
-torch
